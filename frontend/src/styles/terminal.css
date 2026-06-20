@@ -1,0 +1,137 @@
+.ai-terminal{
+
+  width:520px;
+
+  max-width:100%;
+
+  background:#070707;
+
+  border:1px solid rgba(255,255,255,.08);
+
+  border-radius:28px;
+
+  overflow:hidden;
+
+  backdrop-filter:blur(20px);
+
+  position:relative;
+
+  box-shadow:
+  0 0 60px rgba(0,229,160,.08);
+}
+
+.terminal-header{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:18px;
+
+  padding:18px 22px;
+
+  background:rgba(255,255,255,.03);
+}
+
+.dots{
+  display:flex;
+  gap:10px;
+}
+
+.dots span{
+
+  width:14px;
+  height:14px;
+
+  border-radius:50%;
+}
+
+.red{
+  background:#ff5f56;
+}
+
+.yellow{
+  background:#ffbd2e;
+}
+
+.green{
+  background:#27c93f;
+}
+
+.terminal-title{
+
+  color:#8d8d8d;
+
+  font-size:1.05rem;
+}
+
+.terminal-body{
+
+  padding:28px;
+
+  font-family:monospace;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:20px;
+
+  min-height:320px;
+}
+
+.terminal-body p{
+
+  color:white;
+
+  font-size:1rem;
+}
+
+.success{
+
+  color:#00E5A0 !important;
+}
+
+.cursor{
+
+  width:12px;
+
+  height:22px;
+
+  background:#00E5A0;
+
+  animation:blink 1s infinite;
+}
+
+.scan-line{
+
+  position:absolute;
+
+  left:0;
+
+  width:100%;
+
+  height:2px;
+
+  background:rgba(0,229,160,.6);
+
+  animation:scan 5s linear infinite;
+}
+
+@keyframes blink{
+
+  50%{
+    opacity:0;
+  }
+}
+
+@keyframes scan{
+
+  0%{
+    top:0;
+  }
+
+  100%{
+    top:100%;
+  }
+}

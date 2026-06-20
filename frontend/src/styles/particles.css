@@ -1,0 +1,76 @@
+.particles-container{
+  position:fixed;
+  inset:0;
+
+  overflow:hidden;
+
+  pointer-events:none;
+
+  z-index:1;
+
+  mix-blend-mode:screen;
+}
+
+.particle{
+
+  position:absolute;
+
+  width:12px;
+  height:12px;
+
+  border-radius:50%;
+
+  background:
+  radial-gradient(
+    circle,
+    #7DFFD9,
+    #00E5A0
+  );
+
+  opacity:.9;
+
+  bottom:-50px;
+
+  animation:
+  particleRise linear infinite;
+
+  box-shadow:
+    0 0 15px #00E5A0,
+    0 0 35px #00E5A0,
+    0 0 70px #00E5A0,
+    0 0 120px rgba(0,229,160,.9);
+}
+
+.particle::before{
+
+  content:"";
+
+  position:absolute;
+
+  inset:-6px;
+
+  border-radius:50%;
+
+  background:#4DF5D0;
+
+  filter:blur(12px);
+
+  opacity:.9;
+}
+
+.particle::after{
+
+  content:"";
+
+  position:absolute;
+
+  inset:-16px;
+
+  border-radius:50%;
+
+  background:#00E5A0;
+
+  filter:blur(35px);
+
+  opacity:.4;
+}

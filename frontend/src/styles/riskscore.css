@@ -1,0 +1,53 @@
+.risk-score-card{
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+
+  padding:40px;
+
+  background:rgba(255,255,255,.04);
+
+  border:1px solid rgba(255,255,255,.08);
+
+  border-radius:30px;
+
+  backdrop-filter:blur(20px);
+}
+
+.risk-circle{
+
+  width:220px;
+  height:220px;
+
+  border-radius:50%;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+
+  border:8px solid #00E5A0;
+
+  box-shadow:
+  0 0 60px rgba(0,229,160,.3);
+}
+
+.risk-circle h1{
+
+  font-size:4rem;
+
+  color:#00E5A0;
+}
+
+.risk-circle span{
+
+  color:#999;
+}
+
+.risk-score-card h2{
+
+  margin-top:20px;
+
+  color:#00E5A0;
+}

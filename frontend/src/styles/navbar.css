@@ -1,0 +1,160 @@
+.navbar{
+  position:fixed;
+  top:25px;
+
+  left:0;
+  right:0;
+  margin:auto;
+
+  width:min(1400px,92%);
+  height:80px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 35px;
+
+  border-radius:24px;
+
+  background:rgba(8,8,8,.75);
+  backdrop-filter:blur(24px);
+
+  border:1px solid rgba(255,255,255,.08);
+
+  box-shadow:
+    0 8px 40px rgba(0,0,0,.35);
+
+  z-index:9999;
+}
+
+/* ==========================
+   LEFT
+========================== */
+
+.nav-left{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.logo-wrapper{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.logo{
+  height:65px;
+  width:auto;
+
+  filter:
+    drop-shadow(0 0 12px rgba(0,229,160,.3));
+}
+
+/* ==========================
+   BRAND
+========================== */
+
+.brand{
+  display:flex;
+  flex-direction:column;
+}
+
+.brand-name{
+  font-size:1.4rem;
+  font-weight:700;
+  color:white;
+}
+
+.brand-ai{
+  color:#00E5A0;
+  letter-spacing:2px;
+  font-size:.8rem;
+}
+
+/* ==========================
+   CENTER LINKS
+========================== */
+
+.nav-center{
+  flex:1;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  gap:50px;
+}
+
+.nav-center a{
+  color:white;
+  text-decoration:none;
+
+  font-weight:500;
+  font-size:1rem;
+
+  transition:.3s;
+}
+
+.nav-center a:hover{
+  color:#00E5A0;
+}
+
+/* ==========================
+   RIGHT BUTTON
+========================== */
+
+.nav-right{
+  display:flex;
+  align-items:center;
+}
+
+.nav-btn{
+  padding:14px 24px;
+
+  border:none;
+  border-radius:14px;
+
+  background:linear-gradient(
+    135deg,
+    #00E5A0,
+    #4DF5D0
+  );
+
+  color:black;
+  font-weight:700;
+
+  transition:.3s;
+}
+
+.nav-btn:hover{
+  transform:translateY(-3px);
+
+  box-shadow:
+    0 0 25px rgba(0,229,160,.25);
+}
+
+/* ==========================
+   MOBILE
+========================== */
+
+@media(max-width:1000px){
+
+  .navbar{
+    padding:0 20px;
+  }
+
+  .nav-center{
+    display:none;
+  }
+
+  .logo{
+    height:55px;
+  }
+
+  .nav-btn{
+    padding:12px 18px;
+    font-size:.9rem;
+  }
+}

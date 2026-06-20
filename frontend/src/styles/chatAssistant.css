@@ -1,0 +1,230 @@
+.assistant-page{
+  width:92%;
+  max-width:1300px;
+  margin:auto;
+  padding-top:140px;
+  padding-bottom:100px;
+}
+
+.assistant-header{
+  text-align:center;
+  margin-bottom:50px;
+}
+
+.assistant-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 22px;
+  border-radius:999px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  color:#00E5A0;
+  backdrop-filter:blur(20px);
+  margin-bottom:20px;
+}
+
+.assistant-header h1{
+  font-size:4rem;
+  margin-bottom:20px;
+  font-weight:800;
+}
+
+.assistant-header p{
+  color:#b8b8b8;
+  max-width:700px;
+  margin:auto;
+  line-height:1.8;
+  font-size:1.1rem;
+}
+
+/* ==========================
+   CHAT WINDOW
+========================== */
+
+.chat-window{
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.04),
+      rgba(255,255,255,.02)
+    );
+
+  border:1px solid rgba(255,255,255,.08);
+
+  border-radius:30px;
+
+  padding:35px;
+
+  min-height:450px;
+
+  backdrop-filter:blur(25px);
+
+  box-shadow:
+    0 0 50px rgba(0,0,0,.25);
+}
+
+.message{
+  display:flex;
+  gap:16px;
+  margin-bottom:25px;
+}
+
+.avatar{
+  width:50px;
+  height:50px;
+
+  border-radius:50%;
+
+  background:#00E5A0;
+
+  color:black;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:1.2rem;
+  font-weight:700;
+
+  flex-shrink:0;
+}
+
+.bubble{
+  background:#111;
+
+  border:1px solid rgba(255,255,255,.08);
+
+  border-radius:20px;
+
+  padding:18px 22px;
+
+  max-width:75%;
+
+  line-height:1.8;
+
+  color:#f1f1f1;
+}
+
+.user{
+  justify-content:flex-end;
+}
+
+.user .bubble{
+  background:rgba(0,229,160,.12);
+  border:1px solid rgba(0,229,160,.25);
+}
+
+/* ==========================
+   SUGGESTED QUESTIONS
+========================== */
+
+.suggested{
+  margin-top:35px;
+  margin-bottom:35px;
+}
+
+.suggested h3{
+  margin-bottom:18px;
+  font-size:1.3rem;
+}
+
+.suggested-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:15px;
+}
+
+.question-chip{
+  padding:14px 20px;
+
+  border-radius:999px;
+
+  background:#111;
+
+  border:1px solid rgba(255,255,255,.08);
+
+  cursor:pointer;
+
+  transition:.3s;
+}
+
+.question-chip:hover{
+  border-color:#00E5A0;
+  color:#00E5A0;
+  transform:translateY(-2px);
+}
+
+/* ==========================
+   INPUT
+========================== */
+
+.chat-input-box{
+  display:flex;
+  gap:15px;
+  align-items:center;
+}
+
+.chat-input-box input{
+  flex:1;
+
+  height:65px;
+
+  background:#101010;
+
+  border:1px solid rgba(255,255,255,.08);
+
+  border-radius:18px;
+
+  padding:0 22px;
+
+  color:white;
+
+  font-size:1rem;
+
+  outline:none;
+
+  transition:.3s;
+}
+
+.chat-input-box input:focus{
+  border-color:#00E5A0;
+  box-shadow:
+    0 0 25px rgba(0,229,160,.15);
+}
+
+.chat-input-box button{
+  width:160px;
+  height:65px;
+}
+
+/* ==========================
+   MOBILE
+========================== */
+
+@media(max-width:900px){
+
+  .assistant-header h1{
+    font-size:2.8rem;
+  }
+
+  .bubble{
+    max-width:90%;
+  }
+
+  .chat-input-box{
+    flex-direction:column;
+  }
+
+  .chat-input-box button{
+    width:100%;
+  }
+
+  .suggested-grid{
+    flex-direction:column;
+  }
+
+  .question-chip{
+    text-align:center;
+  }
+}
