@@ -1,59 +1,319 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import "../styles/verify.css";
 
 export default function VerifyLandlord() {
 
-  const ownershipRef = useRef();
-  const utilityRef = useRef();
+  const ownershipRef = useRef(null);
+  const utilityRef = useRef(null);
 
-  const [ownershipFile, setOwnershipFile] = useState("");
-  const [utilityFile, setUtilityFile] = useState("");
+  const [ownershipFile, setOwnershipFile] = useState(null);
+const [utilityFile, setUtilityFile] = useState(null);
   const [listingText, setListingText] = useState("");
 
-  const verifyOwnership = () => {
+  const [ownerResult, setOwnerResult] = useState(null);
+  const [billResult, setBillResult] = useState(null);
+  const [listingResult, setListingResult] = useState(null);
+  const [trustScore, setTrustScore] = useState(null);
+const [trustVerdict, setTrustVerdict] = useState("");
 
-    if (!ownershipFile) {
-      alert("Please upload an ownership document.");
-      return;
-    }
+const [finalScore, setFinalScore] = useState(null);
+const [finalVerdict, setFinalVerdict] = useState("");
 
-    alert(
-      "Ownership Verified Successfully!\n\nOwner Name Match: YES\nAuthenticity Score: 94\nVerdict: VERIFIED"
+  const [loading, setLoading] = useState(false);
+
+  const verifyOwnership = async () => {
+
+  if (!ownershipFile) {
+    alert("Please upload an ownership document.");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+
+    const formData = new FormData();
+
+    formData.append(
+      "file",
+      ownershipFile
     );
-  };
 
-  const verifyUtility = () => {
-
-    if (!utilityFile) {
-      alert("Please upload a utility bill.");
-      return;
-    }
-
-    alert(
-      "Utility Bill Matched!\n\nAddress Match: YES\nName Match: YES\nConfidence: 92%"
+    const response = await fetch(
+      "http://127.0.0.1:5000/api/verify-owner",
+      {
+        method: "POST",
+        body: formData
+      }
     );
-  };
 
-  const analyzeListing = () => {
+    const data = await response.json();
 
-    if (!listingText.trim()) {
-      alert("Please paste listing text.");
-      return;
-    }
+    console.log(data);
 
-    alert(
-      "Listing Analysis Complete!\n\nAuthenticity Score: 62\nVerdict: SUSPICIOUS\nRed Flag: Advance payment requested."
+    setOwnerResult(data);
+    console.log("OWNER RESULT", data);
+
+localStorage.setItem(
+  "ownershipScore",
+  data.authenticityScore
+);
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Failed to verify ownership.");
+  }
+
+  setLoading(false);
+};
+
+  const verifyUtility = async () => {
+
+  if (!utilityFile) {
+    alert("Please upload a utility bill.");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+
+    const formData = new FormData();
+
+    formData.append(
+      "file",
+      utilityFile
     );
-  };
 
+    const response = await fetch(
+      "http://127.0.0.1:5000/api/verify-bill",
+      {
+        method: "POST",
+        body: formData
+      }
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+
+    setBillResult(data);
+    console.log("UTILITY RESULT", data);
+
+localStorage.setItem(
+  "utilityScore",
+  data.confidence
+);
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Failed to verify utility bill.");
+  }
+
+  setLoading(false);
+};
+  const analyzeListing = async () => {
+
+  if (!listingText.trim()) {
+    alert("Please paste listing text.");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+
+    const response = await fetch(
+      "http://127.0.0.1:5000/api/verify-listing",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          listingText
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    console.log(data);
+
+    setListingResult(data);
+    console.log("LISTING RESULT", data);
+
+localStorage.setItem(
+  "listingScore",
+  data.authenticityScore
+);
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Failed to analyze listing.");
+  }
+
+  setLoading(false);
+};
+
+const calculateScores = async (
+  ownerData,
+  billData,
+  listingData
+) => {
+
+  try {
+
+    // TRUST SCORE
+
+    const trustResponse = await fetch(
+      "http://127.0.0.1:5000/api/trust-score",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+
+          ownershipScore:
+            ownerData.authenticityScore || 0,
+
+          utilityScore:
+            billData.confidence || 0,
+
+          listingScore:
+            listingData.authenticityScore || 0,
+
+          fraudPenalty:
+            listingData.verdict === "HIGH RISK"
+              ? 20
+              : 0
+
+        })
+      }
+    );
+
+    const trustData =
+      await trustResponse.json();
+
+    setTrustScore(
+  trustData.trustScore
+);
+
+setTrustVerdict(
+  trustData.verdict
+);
+
+// SAVE FOR PDF
+
+localStorage.setItem(
+  "ownershipScore",
+  ownerData.authenticityScore || 0
+);
+
+localStorage.setItem(
+  "utilityScore",
+  billData.confidence || 0
+);
+
+localStorage.setItem(
+  "listingScore",
+  listingData.authenticityScore || 0
+);
+
+localStorage.setItem(
+  "trustScore",
+  trustData.trustScore || 0
+);
+
+    // GET AGREEMENT ANALYSIS DATA
+
+    const analysisData =
+      JSON.parse(
+        localStorage.getItem(
+          "analysisResult"
+        )
+      ) || {};
+
+    // FINAL SCORE
+
+    const finalResponse = await fetch(
+      "http://127.0.0.1:5000/api/final-score",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+
+          riskScore:
+            analysisData.riskScore || 0,
+
+          trustScore:
+            trustData.trustScore || 0,
+
+          listingScore:
+            listingData.authenticityScore || 0
+
+        })
+      }
+    );
+
+    const finalData =
+      await finalResponse.json();
+
+    setFinalScore(
+  finalData.finalScore
+);
+
+setFinalVerdict(
+  finalData.recommendation
+);
+
+localStorage.setItem(
+  "finalScore",
+  finalData.finalScore || 0
+);
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
+
+};
+
+useEffect(() => {
+
+  if (
+    ownerResult &&
+    billResult &&
+    listingResult
+  ) {
+    calculateScores(
+      ownerResult,
+      billResult,
+      listingResult
+    );
+  }
+
+}, [
+  ownerResult,
+  billResult,
+  listingResult
+]);
   return (
     <>
       <Navbar />
 
       <div className="verify-page">
-
-        {/* HEADER */}
 
         <div className="verify-header">
 
@@ -76,17 +336,13 @@ export default function VerifyLandlord() {
 
         </div>
 
-        {/* GRID */}
-
         <div className="verify-grid">
 
-          {/* OWNERSHIP */}
+          {/* OWNER */}
 
           <div className="verify-card">
 
-            <div className="card-icon">
-              🏠
-            </div>
+            <div className="card-icon">🏠</div>
 
             <h2>Ownership Verification</h2>
 
@@ -105,18 +361,18 @@ export default function VerifyLandlord() {
                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                 style={{ display: "none" }}
                 onChange={(e) =>
-                  setOwnershipFile(
-                    e.target.files[0]?.name || ""
-                  )
-                }
+  setOwnershipFile(
+    e.target.files[0] || null
+  )
+}
               />
 
               <span>📄</span>
 
               <h4>
                 {ownershipFile
-                  ? ownershipFile
-                  : "Upload Property Deed"}
+  ? ownershipFile.name
+  : "Upload Property Deed"}
               </h4>
 
               <small>
@@ -132,15 +388,36 @@ export default function VerifyLandlord() {
               Verify Ownership
             </button>
 
+            {ownerResult && (
+
+              <div className="result-box">
+
+                <p>
+                  <strong>Owner:</strong>{" "}
+                  {ownerResult.ownerName}
+                </p>
+
+                <p>
+                  <strong>Score:</strong>{" "}
+                  {ownerResult.authenticityScore}
+                </p>
+
+                <p>
+                  <strong>Verdict:</strong>{" "}
+                  {ownerResult.verdict}
+                </p>
+
+              </div>
+
+            )}
+
           </div>
 
-          {/* UTILITY */}
+          {/* BILL */}
 
           <div className="verify-card">
 
-            <div className="card-icon">
-              ⚡
-            </div>
+            <div className="card-icon">⚡</div>
 
             <h2>Utility Bill Match</h2>
 
@@ -159,18 +436,18 @@ export default function VerifyLandlord() {
                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                 style={{ display: "none" }}
                 onChange={(e) =>
-                  setUtilityFile(
-                    e.target.files[0]?.name || ""
-                  )
-                }
+  setUtilityFile(
+    e.target.files[0] || null
+  )
+}
               />
 
               <span>📑</span>
 
               <h4>
                 {utilityFile
-                  ? utilityFile
-                  : "Upload Utility Bill"}
+  ? utilityFile.name
+  : "Upload Utility Bill"}
               </h4>
 
               <small>
@@ -186,23 +463,55 @@ export default function VerifyLandlord() {
               Verify Utility Bill
             </button>
 
+            {billResult && (
+
+              <div className="result-box">
+
+                <p>
+  <strong>Account Holder:</strong>
+  {billResult.accountHolder}
+</p>
+
+<p>
+  <strong>Provider:</strong>
+  {billResult.provider}
+</p>
+
+<p>
+  <strong>Address:</strong>
+  {billResult.address}
+</p>
+
+<p>
+  <strong>Confidence:</strong>
+  {billResult.confidence}%
+</p>
+
+<p>
+  <strong>Verdict:</strong>
+  {billResult.verdict}
+</p>
+
+              </div>
+
+            )}
+
           </div>
 
         </div>
 
-        {/* LISTING CHECK */}
+        {/* LISTING */}
 
         <div className="verify-card listing-card">
 
-          <div className="card-icon">
-            🔍
-          </div>
+          <div className="card-icon">🔍</div>
 
           <h2>Listing Authenticity Check</h2>
 
           <p>
-            Paste listing descriptions from MagicBricks,
-            99acres, OLX, Housing.com or WhatsApp.
+            Paste listing descriptions from
+            MagicBricks, 99acres, OLX,
+            Housing.com or WhatsApp.
           </p>
 
           <textarea
@@ -211,7 +520,7 @@ export default function VerifyLandlord() {
             onChange={(e) =>
               setListingText(e.target.value)
             }
-            placeholder="Paste property listing text, WhatsApp messages, OLX description, MagicBricks listing..."
+            placeholder="Paste listing text..."
           />
 
           <button
@@ -221,48 +530,102 @@ export default function VerifyLandlord() {
             Analyze Listing
           </button>
 
-        </div>
+          {listingResult && (
 
-        {/* TRUST SCORE */}
+            <div className="result-box">
 
-        <div className="trust-card">
+              <p>
+                <strong>Score:</strong>{" "}
+                {listingResult.authenticityScore}
+              </p>
 
-          <div className="trust-circle">
-            <h2>87</h2>
-            <span>/100</span>
-          </div>
+              <p>
+                <strong>Verdict:</strong>{" "}
+                {listingResult.verdict}
+              </p>
 
-          <div className="trust-content">
-
-            <h3>TRUSTED LANDLORD</h3>
-
-            <p>
-              Overall Trust Score generated using
-              ownership verification, utility matching
-              and listing authenticity analysis.
-            </p>
-
-            <div className="trust-points">
-
-              <div className="trust-item">
-                ✓ Ownership Verified
-              </div>
-
-              <div className="trust-item">
-                ✓ Utility Address Match
-              </div>
-
-              <div className="trust-item">
-                ✓ Authentic Listing
-              </div>
+              <p>
+                <strong>Signal:</strong>{" "}
+                {listingResult.fraudSignals?.[0]}
+              </p>
 
             </div>
 
-          </div>
+          )}
 
         </div>
 
+        {loading && (
+
+          <div className="result-box">
+
+            <h3>
+              Processing Verification...
+            </h3>
+
+          </div>
+
+        )}
+        {trustScore !== null && (
+
+<div className="verify-card score-card">
+
+  <h2>Landlord Trust Score</h2>
+
+  <div
+    className="score-circle"
+    style={{
+      background: `conic-gradient(
+        #00ff88 ${trustScore * 3.6}deg,
+        #1a1a1a 0deg
+      )`
+    }}
+  >
+    <div className="score-inner">
+      <h1>{trustScore}</h1>
+      <span>/100</span>
+    </div>
+  </div>
+
+  <div className="risk-badge">
+    {trustVerdict}
+  </div>
+
+</div>
+
+)}
+
+{finalScore !== null && (
+
+<div className="verify-card score-card">
+
+  <h2>Final Rental Safety Score</h2>
+
+  <div
+    className="score-circle"
+    style={{
+      background: `conic-gradient(
+        #00ff88 ${finalScore * 3.6}deg,
+        #1a1a1a 0deg
+      )`
+    }}
+  >
+    <div className="score-inner">
+      <h1>{finalScore}</h1>
+      <span>/100</span>
+    </div>
+  </div>
+
+  <div className="risk-badge">
+    {finalVerdict}
+  </div>
+
+</div>
+
+)}
+
       </div>
+
     </>
   );
 }

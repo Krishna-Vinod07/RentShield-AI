@@ -6,55 +6,124 @@ export default function AnalysisResult() {
 
   const navigate = useNavigate();
 
-  const analysisData = {
-    riskScore: 82,
-    verdict: "HIGH RISK",
-    fraudProbability: 68,
+  const analysisData =
+JSON.parse(
+localStorage.getItem("analysisResult")
+) || {
+    fraudProbability: 0,
 
-    agreementSummary: {
-      rent: "₹18,000",
-      deposit: "₹100,000",
-      duration: "11 Months",
-      noticePeriod: "48 Hours",
-      lockIn: "11 Months",
-      maintenance: "Tenant"
-    },
+positives: [],
 
-    clauses: [
+nextActions: [],
+
+
+recommendation: "",
+riskScore: 0,
+verdict: "No Analysis Available",
+
+
+agreementSummary: {
+  rent: "-",
+  deposit: "-",
+  duration: "-",
+  noticePeriod: "-",
+  lockIn: "-",
+  maintenance: "-"
+},
+
+clauses: [],
+
+fraudSignals: [],
+
+overallAdvice:
+  "Upload an agreement and run analysis."
+
+
+};
+
+
+const downloadReport = async () => {
+
+  try {
+
+    const reportData = {
+
+      ...analysisData,
+
+      ownershipScore:
+        localStorage.getItem(
+          "ownershipScore"
+        ) || 0,
+
+      utilityScore:
+        localStorage.getItem(
+          "utilityScore"
+        ) || 0,
+
+      listingScore:
+        localStorage.getItem(
+          "listingScore"
+        ) || 0,
+
+      trustScore:
+        localStorage.getItem(
+          "trustScore"
+        ) || 0,
+
+      finalScore:
+        localStorage.getItem(
+          "finalScore"
+        ) || 0
+
+    };
+
+    const response = await fetch(
+      "http://127.0.0.1:5000/api/download-report",
       {
-        severity: "HIGH",
-        title: "Non-refundable Deposit",
-        plain: "Tenant may lose the entire deposit",
-        recommendation: "Make deposit refundable"
-      },
-      {
-        severity: "MEDIUM",
-        title: "48 Hour Eviction Notice",
-        plain: "Landlord can evict with very short notice",
-        recommendation: "Minimum 30 day notice"
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(
+          reportData
+        )
       }
-    ],
+    );
 
-    positives: [
-      "Clearly specified rent amount",
-      "Property address is mentioned",
-      "Agreement duration defined"
-    ],
+    const blob =
+      await response.blob();
 
-    fraudSignals: [
-      "Cash-only payment requested",
-      "Owner identity not verified"
-    ],
+    const url =
+      window.URL.createObjectURL(blob);
 
-    nextActions: [
-      "Verify ownership documents",
-      "Negotiate deposit refund clause",
-      "Request longer notice period"
-    ],
+    const a =
+      document.createElement("a");
 
-    overallAdvice:
-      "Proceed with caution. Verify ownership before signing and request revisions to risky clauses."
-  };
+    a.href = url;
+
+    a.download =
+      "RentShield_Report.pdf";
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Failed to download report."
+    );
+
+  }
+
+};
+
 
   return (
     <>
@@ -78,9 +147,8 @@ export default function AnalysisResult() {
             <h3>{analysisData.verdict}</h3>
 
             <p>
-              Fraud Probability: {analysisData.fraudProbability}%
-            </p>
-
+  Fraud Probability: {analysisData.fraudProbability || 0}%
+</p>
           </div>
 
           <div className="summary-panel">
@@ -91,7 +159,9 @@ export default function AnalysisResult() {
 
               <div>
                 <strong>Rent</strong>
-                <p>{analysisData.agreementSummary.rent}</p>
+                <p>
+  {analysisData.agreementSummary?.rent || "-"}
+</p>
               </div>
 
               <div>
@@ -111,12 +181,16 @@ export default function AnalysisResult() {
 
               <div>
                 <strong>Lock In</strong>
-                <p>{analysisData.agreementSummary.lockIn}</p>
+                <p>
+  {analysisData.agreementSummary.lockIn || "-"}
+</p>
               </div>
 
               <div>
                 <strong>Maintenance</strong>
-                <p>{analysisData.agreementSummary.maintenance}</p>
+                <p>
+  {analysisData.agreementSummary.maintenance || "-"}
+</p>
               </div>
 
             </div>
@@ -131,7 +205,7 @@ export default function AnalysisResult() {
 
           <div className="clauses-grid">
 
-            {analysisData.clauses.map((clause, index) => (
+            {(analysisData.clauses || []).map((clause, index) => (
 
               <div
                 key={index}
@@ -139,7 +213,7 @@ export default function AnalysisResult() {
               >
 
                 <span
-                  className={`severity ${clause.severity.toLowerCase()}`}
+                  className={`severity ${(clause.severity || "medium").toLowerCase()}`}
                 >
                   {clause.severity}
                 </span>
@@ -165,9 +239,9 @@ export default function AnalysisResult() {
           <h2>Positive Signals</h2>
 
           <ul className="report-list">
-            {analysisData.positives.map((item, index) => (
-              <li key={index}>✅ {item}</li>
-            ))}
+            {(analysisData.positives || []).map((item, index) => (
+  <li key={index}>✅ {item}</li>
+))}
           </ul>
 
         </section>
@@ -177,7 +251,7 @@ export default function AnalysisResult() {
           <h2>Fraud Signals</h2>
 
           <ul className="report-list">
-            {analysisData.fraudSignals.map((item, index) => (
+            {(analysisData.fraudSignals || []).map((item, index) => (
               <li key={index}>⚠️ {item}</li>
             ))}
           </ul>
@@ -190,7 +264,7 @@ export default function AnalysisResult() {
 
           <div className="action-grid">
 
-            {analysisData.nextActions.map((action, index) => (
+            {(analysisData.nextActions || []).map((action, index) => (
 
               <div
                 key={index}
@@ -215,92 +289,41 @@ export default function AnalysisResult() {
 
         <section className="report-section">
 
-          <h2>Verify Landlord</h2>
+  <h2>Quick Actions</h2>
 
-          <p>
-            Verify ownership records, utility bills,
-            and listing authenticity before signing.
-          </p>
+  <div className="quick-actions">
 
-          <button
-            className="primary-btn"
-            onClick={() => navigate("/verify")}
-          >
-            Start Verification
-          </button>
+    <div
+      className="action-circle verify-circle"
+      onClick={() => navigate("/verify")}
+    >
+      <div className="circle-icon">🏠</div>
+      <p>Verify Landlord</p>
+    </div>
 
-        </section>
+    <div
+      className="action-circle chat-circle"
+      onClick={() => navigate("/chat")}
+    >
+      <div className="circle-icon">🤖</div>
+      <p>AI Assistant</p>
+    </div>
 
-        <section className="report-section">
+  </div>
 
-          <h2>Ask RentShield AI</h2>
+</section>
 
-          <div className="mini-chat">
-
-            <div className="chat-bubble">
-              Can landlord keep my deposit?
-            </div>
-
-            <div className="chat-bubble ai">
-              Generally a landlord cannot unfairly
-              withhold a deposit without valid reasons.
-            </div>
-
-          </div>
-
-          <button
-            className="primary-btn"
-            onClick={() => navigate("/chat")}
-          >
-            Open AI Assistant
-          </button>
-
-        </section>
-
-        <section className="report-section">
-
-          <h2>Landlord Trust Score</h2>
-
-          <div className="trust-preview">
-
-            <h1>87</h1>
-
-            <span>TRUSTED</span>
-
-          </div>
-
-        </section>
-
-        <section className="report-section">
-
-          <h2>Final Rental Safety Score</h2>
-
-          <div className="trust-preview">
-
-            <h1>74</h1>
-
-            <span>
-              PROCEED WITH CAUTION
-            </span>
-
-          </div>
-
-        </section>
 
         <div className="report-buttons">
 
           <button
   className="primary-btn"
+  onClick={downloadReport}
 >
   Download PDF Report
 </button>
 
-          <button
-            className="secondary-btn"
-            onClick={() => navigate("/verify")}
-          >
-            Verify Landlord
-          </button>
+          
 
         </div>
 

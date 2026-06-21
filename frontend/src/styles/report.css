@@ -456,3 +456,103 @@ RESPONSIVE
     height:180px;
   }
 }
+
+.quick-actions {
+
+  display: flex;
+
+  justify-content: center;
+
+  gap: 60px;
+
+  margin-top: 30px;
+
+  flex-wrap: wrap;
+
+}
+
+.action-circle {
+
+  width: 180px;
+
+  height: 180px;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: center;
+
+  cursor: pointer;
+
+  transition: all 0.35s ease;
+
+  border: 2px solid #00ff99;
+
+  background: #0b0b0b;
+
+}
+
+.circle-icon {
+
+  font-size: 50px;
+
+  margin-bottom: 12px;
+
+}
+
+.action-circle p {
+
+  color: white;
+
+  font-size: 18px;
+
+  font-weight: 600;
+
+}
+
+.verify-circle:hover {
+
+  background: linear-gradient(
+    135deg,
+    #00ff99,
+    #00cc88
+  );
+
+  transform: translateY(-8px) scale(1.08);
+
+  box-shadow:
+    0 0 35px rgba(0,255,153,0.6);
+
+}
+
+.verify-circle:hover p {
+
+  color: black;
+
+}
+
+.chat-circle:hover {
+
+  background: linear-gradient(
+    135deg,
+    #00ffff,
+    #00bfff
+  );
+
+  transform: translateY(-8px) scale(1.08);
+
+  box-shadow:
+    0 0 35px rgba(0,191,255,0.6);
+
+}
+
+.chat-circle:hover p {
+
+  color: black;
+
+}

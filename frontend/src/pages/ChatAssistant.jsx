@@ -5,6 +5,7 @@ import "../styles/chatAssistant.css";
 export default function ChatAssistant() {
 
   const [question, setQuestion] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [messages, setMessages] = useState([
     {
@@ -14,71 +15,69 @@ export default function ChatAssistant() {
     }
   ]);
 
-  const getResponse = (q) => {
+  const sendMessage = async (customQuestion = null) => {
 
-    const text = q.toLowerCase();
+    const userQuestion =
+      customQuestion || question;
 
-    if (text.includes("deposit")) {
-      return "Generally, a landlord cannot unfairly withhold a security deposit. Deductions should only be made for damages, unpaid rent or contract violations.";
-    }
-
-    if (
-      text.includes("48") ||
-      text.includes("notice")
-    ) {
-      return "A 48-hour eviction notice may be considered unreasonable depending on local rental laws. RentShield flags this clause as HIGH RISK.";
-    }
-
-    if (
-      text.includes("cash") ||
-      text.includes("payment")
-    ) {
-      return "Cash-only payment requests are often considered a fraud signal because they reduce transaction traceability.";
-    }
-
-    if (
-      text.includes("refundable")
-    ) {
-      return "A refundable deposit should normally be returned at the end of the tenancy after legitimate deductions.";
-    }
-
-    return "Based on rental best practices, we recommend carefully reviewing the agreement and verifying ownership documents before signing.";
-  };
-
-  const sendMessage = () => {
-
-    if (!question.trim()) return;
-
-    const userQuestion = question;
+    if (!userQuestion.trim()) return;
 
     setMessages((prev) => [
       ...prev,
       {
         type: "user",
         text: userQuestion
-      },
-      {
-        type: "ai",
-        text: getResponse(userQuestion)
       }
     ]);
 
     setQuestion("");
-  };
+    setLoading(true);
 
-  const selectQuestion = (q) => {
+    try {
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        type: "user",
-        text: q
-      },
-      {
-        type: "ai",
-        text: getResponse(q)
-      }
-    ]);
+      const response = await fetch(
+        "http://127.0.0.1:5000/api/chat",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body: JSON.stringify({
+            message: userQuestion
+          })
+        }
+      );
+
+      const result =
+        await response.json();
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: "ai",
+          text:
+            result.answer ||
+            "No response received."
+        }
+      ]);
+
+    } catch (error) {
+
+      console.error(error);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: "ai",
+          text:
+            "Unable to connect to RentShield AI backend."
+        }
+      ]);
+
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -131,6 +130,22 @@ export default function ChatAssistant() {
 
           ))}
 
+          {loading && (
+
+            <div className="message ai">
+
+              <div className="avatar">
+                🤖
+              </div>
+
+              <div className="bubble">
+                Thinking...
+              </div>
+
+            </div>
+
+          )}
+
         </div>
 
         <div className="suggested">
@@ -142,7 +157,7 @@ export default function ChatAssistant() {
             <div
               className="question-chip"
               onClick={() =>
-                selectQuestion(
+                sendMessage(
                   "Can landlord keep my deposit?"
                 )
               }
@@ -153,7 +168,7 @@ export default function ChatAssistant() {
             <div
               className="question-chip"
               onClick={() =>
-                selectQuestion(
+                sendMessage(
                   "Is 48 hour notice legal?"
                 )
               }
@@ -164,7 +179,7 @@ export default function ChatAssistant() {
             <div
               className="question-chip"
               onClick={() =>
-                selectQuestion(
+                sendMessage(
                   "What is a refundable deposit?"
                 )
               }
@@ -175,7 +190,7 @@ export default function ChatAssistant() {
             <div
               className="question-chip"
               onClick={() =>
-                selectQuestion(
+                sendMessage(
                   "Is cash-only payment risky?"
                 )
               }
@@ -200,9 +215,12 @@ export default function ChatAssistant() {
 
           <button
             className="primary-btn"
-            onClick={sendMessage}
+            onClick={() => sendMessage()}
+            disabled={loading}
           >
-            Send
+            {loading
+              ? "Thinking..."
+              : "Send"}
           </button>
 
         </div>
