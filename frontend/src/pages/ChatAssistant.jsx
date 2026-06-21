@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import "../styles/chatAssistant.css";
+import ReactMarkdown from "react-markdown";
 
 export default function ChatAssistant() {
 
@@ -123,8 +124,12 @@ export default function ChatAssistant() {
               )}
 
               <div className="bubble">
-                {msg.text}
-              </div>
+
+  <ReactMarkdown>
+    {msg.text}
+  </ReactMarkdown>
+
+</div>
 
             </div>
 

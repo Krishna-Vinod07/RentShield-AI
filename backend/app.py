@@ -18,6 +18,8 @@ from routes.final_score import final_bp
 # PDF Download
 from routes.download_routes import download_bp
 
+from routes.extract_agreement import extract_bp
+
 
 app = Flask(__name__)
 CORS(app)
@@ -34,6 +36,7 @@ app.register_blueprint(rewrite_bp)
 app.register_blueprint(owner_bp)
 app.register_blueprint(bill_bp)
 app.register_blueprint(listing_bp)
+app.register_blueprint(extract_bp)
 
 app.register_blueprint(trust_bp)
 app.register_blueprint(final_bp)

@@ -8,97 +8,146 @@ const navigate = useNavigate();
 
 const [agreementText, setAgreementText] = useState("");
 const [fileName, setFileName] = useState("");
+const [selectedFile, setSelectedFile] = useState(null);
 const [analyzing, setAnalyzing] = useState(false);
 const [analysisStep, setAnalysisStep] = useState("");
 
 const fileRef = useRef(null);
 
 const handleFile = (e) => {
-const file = e.target.files[0];
 
+  const file = e.target.files[0];
 
-if (!file) return;
+  if (!file) return;
 
-setFileName(file.name);
+  setSelectedFile(file);
 
+  setFileName(file.name);
 
 };
 
 const handleAnalyze = async () => {
 
+  if (!fileName && !agreementText.trim()) {
+    alert(
+      "Please upload a file or paste agreement text."
+    );
+    return;
+  }
 
-if (!fileName && !agreementText.trim()) {
-  alert(
-    "Please upload a file or paste agreement text."
-  );
-  return;
-}
-
-setAnalyzing(true);
-
-setAnalysisStep(
-  "📄 Extracting Agreement Text..."
-);
-
-setTimeout(() => {
-  setAnalysisStep(
-    "🔍 Detecting Risky Clauses..."
-  );
-}, 1000);
-
-setTimeout(() => {
-  setAnalysisStep(
-    "⚠️ Checking Fraud Signals..."
-  );
-}, 2000);
-
-setTimeout(() => {
-  setAnalysisStep(
-    "🛡️ Calculating Trust Score..."
-  );
-}, 3000);
-
-try {
-
-  const response = await fetch(
-    "http://127.0.0.1:5000/api/analyze",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        agreementText,
-      }),
-    }
-  );
-
-  const result = await response.json();
-
-  localStorage.setItem(
-    "analysisResult",
-    JSON.stringify(result)
-  );
+  setAnalyzing(true);
 
   setAnalysisStep(
-    "📊 Generating AI Report..."
+    "📄 Extracting Agreement Text..."
   );
 
   setTimeout(() => {
-    navigate("/report");
-  }, 1500);
+    setAnalysisStep(
+      "🔍 Detecting Risky Clauses..."
+    );
+  }, 1000);
 
-} catch (error) {
+  setTimeout(() => {
+    setAnalysisStep(
+      "⚠️ Checking Fraud Signals..."
+    );
+  }, 2000);
 
-  console.error(error);
+  setTimeout(() => {
+    setAnalysisStep(
+      "🛡️ Calculating Trust Score..."
+    );
+  }, 3000);
 
-  alert(
-    "Failed to connect to backend."
-  );
+  try {
 
-  setAnalyzing(false);
-}
+    let finalAgreementText =
+      agreementText;
 
+    // Extract text from uploaded file
+    if (
+      selectedFile &&
+      !agreementText.trim()
+    ) {
+
+      const formData =
+        new FormData();
+
+      formData.append(
+        "file",
+        selectedFile
+      );
+
+      const extractResponse =
+        await fetch(
+          "http://127.0.0.1:5000/api/extract-agreement",
+          {
+            method: "POST",
+            body: formData
+          }
+        );
+
+      const extractData =
+        await extractResponse.json();
+
+      finalAgreementText =
+        extractData.text || "";
+
+      console.log(
+        "EXTRACTED PDF TEXT:",
+        finalAgreementText
+      );
+    }
+
+    // Analyze extracted text
+    const response =
+      await fetch(
+        "http://127.0.0.1:5000/api/analyze",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body: JSON.stringify({
+            agreementText:
+              finalAgreementText
+          })
+        }
+      );
+
+    const result =
+      await response.json();
+
+    console.log(
+      "ANALYSIS RESULT:",
+      result
+    );
+
+    localStorage.setItem(
+      "analysisResult",
+      JSON.stringify(result)
+    );
+
+    setAnalysisStep(
+      "📊 Generating AI Report..."
+    );
+
+    setTimeout(() => {
+      navigate("/report");
+    }, 1500);
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Failed to connect to backend."
+    );
+
+    setAnalyzing(false);
+
+  }
 
 };
 

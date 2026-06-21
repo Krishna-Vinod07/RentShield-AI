@@ -6,41 +6,55 @@ export default function AnalysisResult() {
 
   const navigate = useNavigate();
 
-  const analysisData =
-JSON.parse(
-localStorage.getItem("analysisResult")
-) || {
-    fraudProbability: 0,
+  const storedData =
+  JSON.parse(
+    localStorage.getItem(
+      "analysisResult"
+    )
+  ) || {};
 
-positives: [],
+const analysisData = {
 
-nextActions: [],
+  fraudProbability: 0,
 
+  positives: [],
 
-recommendation: "",
-riskScore: 0,
-verdict: "No Analysis Available",
+  nextActions: [],
 
+  recommendation: "",
 
-agreementSummary: {
-  rent: "-",
-  deposit: "-",
-  duration: "-",
-  noticePeriod: "-",
-  lockIn: "-",
-  maintenance: "-"
-},
+  riskScore: 0,
 
-clauses: [],
+  verdict: "No Analysis Available",
 
-fraudSignals: [],
+  agreementSummary: {
+    rent: "-",
+    deposit: "-",
+    duration: "-",
+    noticePeriod: "-",
+    lockIn: "-",
+    maintenance: "-"
+  },
 
-overallAdvice:
-  "Upload an agreement and run analysis."
+  clauses: [],
 
+  fraudSignals: [],
 
+  overallAdvice:
+    "Upload an agreement and run analysis.",
+
+  ...storedData,
+
+  agreementSummary: {
+    rent: "-",
+    deposit: "-",
+    duration: "-",
+    noticePeriod: "-",
+    lockIn: "-",
+    maintenance: "-",
+    ...(storedData.agreementSummary || {})
+  }
 };
-
 
 const downloadReport = async () => {
 
@@ -157,43 +171,49 @@ const downloadReport = async () => {
 
             <div className="summary-grid">
 
-              <div>
-                <strong>Rent</strong>
-                <p>
-  {analysisData.agreementSummary?.rent || "-"}
-</p>
-              </div>
+  <div>
+    <strong>Rent</strong>
+    <p>
+      {analysisData.agreementSummary?.rent || "-"}
+    </p>
+  </div>
 
-              <div>
-                <strong>Deposit</strong>
-                <p>{analysisData.agreementSummary.deposit}</p>
-              </div>
+  <div>
+    <strong>Deposit</strong>
+    <p>
+      {analysisData.agreementSummary?.deposit || "-"}
+    </p>
+  </div>
 
-              <div>
-                <strong>Duration</strong>
-                <p>{analysisData.agreementSummary.duration}</p>
-              </div>
+  <div>
+    <strong>Duration</strong>
+    <p>
+      {analysisData.agreementSummary?.duration || "-"}
+    </p>
+  </div>
 
-              <div>
-                <strong>Notice</strong>
-                <p>{analysisData.agreementSummary.noticePeriod}</p>
-              </div>
+  <div>
+    <strong>Notice</strong>
+    <p>
+      {analysisData.agreementSummary?.noticePeriod || "-"}
+    </p>
+  </div>
 
-              <div>
-                <strong>Lock In</strong>
-                <p>
-  {analysisData.agreementSummary.lockIn || "-"}
-</p>
-              </div>
+  <div>
+    <strong>Lock In</strong>
+    <p>
+      {analysisData.agreementSummary?.lockIn || "-"}
+    </p>
+  </div>
 
-              <div>
-                <strong>Maintenance</strong>
-                <p>
-  {analysisData.agreementSummary.maintenance || "-"}
-</p>
-              </div>
+  <div>
+    <strong>Maintenance</strong>
+    <p>
+      {analysisData.agreementSummary?.maintenance || "-"}
+    </p>
+  </div>
 
-            </div>
+</div>
 
           </div>
 
@@ -218,12 +238,12 @@ const downloadReport = async () => {
                   {clause.severity}
                 </span>
 
-                <h3>{clause.title}</h3>
+                <h3>{clause?.title || "Unknown Clause"}</h3>
 
-                <p>{clause.plain}</p>
+                <p>{clause?.plain || "-"}</p>
 
                 <small>
-                  Recommendation: {clause.recommendation}
+                  Recommendation: {clause?.recommendation || "-"}
                 </small>
 
               </div>

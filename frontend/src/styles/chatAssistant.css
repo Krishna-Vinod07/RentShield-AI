@@ -228,3 +228,28 @@
     text-align:center;
   }
 }
+
+.bubble {
+  white-space: pre-wrap;
+  line-height: 1.8;
+}
+
+.bubble h1,
+.bubble h2,
+.bubble h3 {
+  color: #2ee6c5;
+  margin-bottom: 10px;
+}
+
+.bubble ul,
+.bubble ol {
+  padding-left: 20px;
+}
+
+.bubble p {
+  margin-bottom: 10px;
+}
+
+.bubble li {
+  margin-bottom: 6px;
+}

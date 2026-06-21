@@ -49,6 +49,7 @@ const [finalVerdict, setFinalVerdict] = useState("");
     );
 
     const data = await response.json();
+    console.log("ANALYSIS RESULT", data);
 
     console.log(data);
 
